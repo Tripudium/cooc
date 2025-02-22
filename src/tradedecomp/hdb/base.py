@@ -1,9 +1,12 @@
+"""
+Base class for loading data
+"""
+
 from pathlib import Path
 import logging
 from typing import List
 import polars as pl
 import datetime as dt
-import re   
 
 from .utils import get_months, nanoseconds
 
@@ -14,7 +17,7 @@ logger.setLevel(logging.INFO)
 DATA_PATH = Path(__file__).parent.parent.parent.parent / "data"
 
 class DataLoader:
-    def __init__(self, root: str | Path = DATA_PATH):
+    def __init__(self, root: str | Path = DATA_PATH, cache: bool = True):
         """
         Initialize the DataLoader with a path to the data.
         """
@@ -22,6 +25,11 @@ class DataLoader:
         self.root = root
         self.raw_path = root / "raw"
         self.processed_path = root / "processed"
+        # maintain a cache of dataframes
+        if cache:
+            self.cache = {}
+        else:
+            self.cache = None
 
     @property
     def raw_path(self):
@@ -39,7 +47,7 @@ class DataLoader:
     def processed_path(self, path: str | Path):
         self._processed_path = path
 
-    def _load_data(self, product: str, times: List[str], type: str) -> pl.DataFrame:    
+    def _load_data(self, product: str, times: List[str], type: str, lazy=False) -> pl.DataFrame:    
         """
         Load data for a given product and times.
         """
@@ -63,25 +71,60 @@ class DataLoader:
                     logger.info(f"Product {product} with type {type} and month {month} is not available")
                     return None
             else:
-                df = pl.read_parquet(filename)
+                # check if the dataframe is already in the cache
+                if self.cache is not None and filename in self.cache and not lazy:
+                    df = self.cache[filename]
+                else:
+                    if lazy:
+                        df = pl.scan_parquet(filename)
+                    else:
+                        df = pl.read_parquet(filename)
+                        if self.cache is not None:
+                            self.cache[filename] = df
             dfs.append(df)
 
         df = pl.concat(dfs)
         df = df.filter(pl.col('ts').is_between(nanoseconds(times[0]), nanoseconds(times[1])))
         return df
     
-    def load_trades(self, product: str, times: List[str]) -> pl.DataFrame:
+    def load_trades(self, products: List[str] | str, times: List[str], lazy=False) -> pl.DataFrame:
         """
         Load trades data for a given product and times.
         """
-        return self._load_data(product, times, "trade")    
+        if isinstance(products, str):
+            products = [products]
+        dfs = []
+        for product in products:
+            df = self._load_data(product, times, "trade", lazy)
+            df = df.with_columns(pl.lit(product).alias('product'))
+            dfs.append(df)
+        df = pl.concat(dfs).sort('ts')
+        return df
 
-    def load_book(self, product: str, times: List[str]) -> pl.DataFrame:
+    def load_book(self, products: List[str], times: List[str], lazy=False) -> pl.DataFrame:
         """
         Load book data for a given product and times.
         """
-        return self._load_data(product, times, "book")
-    
+        if isinstance(products, str):
+            return self._load_data(products, times, "book", lazy)
+        
+        dfs = []
+        for product in products:
+            df = self._load_data(product, times, "book", lazy).sort('ts')
+            if lazy:
+                columns = df.collect_schema().names()
+            else:
+                columns = df.columns
+            rename_map = {
+                col: f"{col}_{product}" for col in columns if col != "ts"
+            }
+            df = df.rename(rename_map)
+            dfs.append(df)
+        merged_df = pl.concat([df.select('ts') for df in dfs], how='vertical').unique('ts').sort('ts')
+        for i, df in enumerate(dfs):
+            merged_df = merged_df.join_asof(df, on='ts')
+        return merged_df.drop_nulls().sort('ts')
+        
     def download(self, product: str, month: str, type: str):
         pass
 
