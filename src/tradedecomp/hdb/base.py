@@ -8,8 +8,10 @@ import re
 from .utils import get_months, nanoseconds
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
-DATA_PATH = Path(__file__).parent.parent.parent / "data"
+
+DATA_PATH = Path(__file__).parent.parent.parent.parent / "data"
 
 class DataLoader:
     def __init__(self, root: str | Path = DATA_PATH):
@@ -43,23 +45,23 @@ class DataLoader:
         """
         if len(times) != 2:
             raise ValueError("Times must be a list of two strings in the format '%y%m%d.%H%M'")
-        for t in times:
-            if not re.match(r'^\d{6}\.\d{2}$', t):
-                raise ValueError("Times must be in the format '%y%m%d.%H%M'")
-        
-        dtimes = [dt.datetime.strptime(t, "%y%m%d.%H%M") for t in times]
+        try:
+            dtimes = [dt.datetime.strptime(t, "%y%m%d.%H%M") for t in times]
+        except ValueError:
+            raise ValueError("Times must be in the format '%y%m%d.%H%M'")
         months = get_months(dtimes[0], dtimes[1])
 
         dfs = []
         for month in months:
-            filename = "{}{}_{}_{}.parquet".format(str(self.processed_path), product, month, type)
+            filename = "{}/{}_{}_{}.parquet".format(str(self.processed_path), product, month, type)
             if not Path(filename).exists():
                 logger.info(f"File {filename} not found, downloading...")
                 self.download(product, month, type)
                 logger.info("File downloaded, processing...")
                 df = self.process(product, month, type)
                 if df is None:
-                    raise ValueError(f"Product {product} with type {type} and month {month} is not available")
+                    logger.info(f"Product {product} with type {type} and month {month} is not available")
+                    return None
             else:
                 df = pl.read_parquet(filename)
             dfs.append(df)
@@ -72,7 +74,7 @@ class DataLoader:
         """
         Load trades data for a given product and times.
         """
-        return self._load_data(product, times, "trades")    
+        return self._load_data(product, times, "trade")    
 
     def load_book(self, product: str, times: List[str]) -> pl.DataFrame:
         """
@@ -80,8 +82,8 @@ class DataLoader:
         """
         return self._load_data(product, times, "book")
     
-    def download(self):
+    def download(self, product: str, month: str, type: str):
         pass
 
-    def process(self):
+    def process(self, product: str, month: str, type: str):
         return None

@@ -1,2 +1,3 @@
-def main() -> None:
-    print("Hello from tradedecomp!")
+from . import polars_extensions
+
+__all__ = ["polars_extensions"]
