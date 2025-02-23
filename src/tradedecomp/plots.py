@@ -8,7 +8,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def plot_trades(df: pl.DataFrame, products: list[str], ts_col: str, start_time: str | datetime, nr_of_trades: int, delta: str | timedelta):
+def plot_trades(df: pl.DataFrame, products: list[str], ts_col: str, start_time: str | datetime, nr_of_trades: int, delta: str | timedelta, save=False):
     """
     Plot the decomposition of the trades into components
     """
@@ -36,7 +36,7 @@ def plot_trades(df: pl.DataFrame, products: list[str], ts_col: str, start_time: 
     )
 
     fig, ax = plt.subplots(figsize=(10, 4))
-
+    
     ax.scatter(df['ts'], df['y'], color='blue', zorder=3)
 
     for y in product_to_y.values():
@@ -75,4 +75,6 @@ def plot_trades(df: pl.DataFrame, products: list[str], ts_col: str, start_time: 
     ax.set_ylabel("Product")
     ax.set_title("Trades and their neighbourhoods")
 
+    if save:
+        plt.savefig(f"trades_{start_time}_{delta}.png")
     plt.show()

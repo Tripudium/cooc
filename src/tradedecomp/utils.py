@@ -33,13 +33,19 @@ def str_to_timedelta(s: str) -> timedelta:
     """
     Convert a string like '30s' to a timedelta.
     """
-    match = re.fullmatch(r"(\d+)([smh])", s)
+    match = re.fullmatch(r"(\d+)(ns|us|ms|s|m|h)", s)
     if not match:
         raise ValueError(f"Input string '{s}' is not in the expected format, e.g., '30s', '1m', or '2h'.")
     number, unit = match.groups()
     number = int(number)
     
-    if unit == 's':  # seconds
+    if unit == 'ms':
+        return timedelta(milliseconds=number)
+    elif unit == 'us':
+        return timedelta(microseconds=number)
+    elif unit == 'ns':  # nanoseconds
+        return timedelta(nanoseconds=number)
+    elif unit == 's':  # seconds
         return timedelta(seconds=number)
     elif unit == 'm':  # minutes
         return timedelta(minutes=number)

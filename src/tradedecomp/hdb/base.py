@@ -68,7 +68,7 @@ class DataLoader:
         if len(times) != 2:
             raise ValueError("Times must be a list of two strings in the format '%y%m%d.%H%M'")
         try:
-            dtimes = [dt.datetime.strptime(t, "%y%m%d.%H%M") for t in times]
+            dtimes = [datetime.strptime(t, "%y%m%d.%H%M") for t in times]
         except ValueError:
             raise ValueError("Times must be in the format '%y%m%d.%H%M'")
         months = get_months(dtimes[0], dtimes[1])

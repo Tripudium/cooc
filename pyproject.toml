@@ -18,6 +18,7 @@ dependencies = [
     "pybit>=5.9.0",
     "pytz>=2025.1",
     "seaborn>=0.13.2",
+    "tqdm>=4.67.1",
 ]
 
 [project.scripts]

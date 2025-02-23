@@ -1,5 +1,7 @@
 import polars as pl
 from typing import List
+from datetime import timedelta
+from tradedecomp.tradeclass import label_trades
 
 # Register a custom namespace for our additional DataFrame functionality.
 @pl.api.register_dataframe_namespace("_dt")
@@ -86,3 +88,10 @@ class TradeMethods:
         """
         return self._df.with_columns(
             pl.when(pl.col(col) > 0).then(1).otherwise(-1).alias('side'))
+    
+    def classify_trades(self, products: List[str], ts_col: str, delta: str | timedelta) -> pl.DataFrame:
+        """
+        Classify trades based on co-trading relationships.
+        """
+        mapping: dict = {0: "iso", 1: "nis-c", 2: "nis-s", 3: "nis-b"}
+        return label_trades(self._df, products, ts_col, delta, mapping) 
