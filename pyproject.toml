@@ -11,10 +11,13 @@ dependencies = [
     "bybit-bulk-downloader>=1.2.0",
     "ipykernel>=6.29.5",
     "matplotlib>=3.10.0",
+    "pandas>=2.2.3",
     "pathlib>=1.0.1",
     "polars>=1.22.0",
+    "pyarrow>=19.0.1",
     "pybit>=5.9.0",
     "pytz>=2025.1",
+    "seaborn>=0.13.2",
 ]
 
 [project.scripts]

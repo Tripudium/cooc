@@ -1,22 +1,8 @@
-from datetime import datetime
-from typing import List, Union
-import pytz
+from typing import Union
 import calendar
-
-def get_months(start_date: datetime, end_date: datetime) -> List[str]:
-    """
-    Given two datetime objects, generate a list of months between them as strings in 'MM' format.
-    """
-    months = []
-    current_date = start_date.replace(day=1)
-    
-    while current_date <= end_date:
-        months.append(current_date.strftime('%y%m'))
-        if current_date.month == 12:
-            current_date = current_date.replace(year=current_date.year + 1, month=1)
-        else:
-            current_date = current_date.replace(month=current_date.month + 1)
-    return sorted(months)
+from datetime import datetime, timedelta
+import pytz
+import re
 
 def nanoseconds(input: Union[str, datetime]) -> int:
     """
@@ -42,3 +28,22 @@ def nanoseconds(input: Union[str, datetime]) -> int:
     time_tuple = input.utctimetuple()
     timestamp = 1000 * (calendar.timegm(time_tuple) * 1000 * 1000 + input.microsecond)
     return timestamp
+
+def str_to_timedelta(s: str) -> timedelta:
+    """
+    Convert a string like '30s' to a timedelta.
+    """
+    match = re.fullmatch(r"(\d+)([smh])", s)
+    if not match:
+        raise ValueError(f"Input string '{s}' is not in the expected format, e.g., '30s', '1m', or '2h'.")
+    number, unit = match.groups()
+    number = int(number)
+    
+    if unit == 's':  # seconds
+        return timedelta(seconds=number)
+    elif unit == 'm':  # minutes
+        return timedelta(minutes=number)
+    elif unit == 'h':  # hours
+        return timedelta(hours=number)
+    else:
+        raise ValueError(f"Unrecognized unit '{unit}' in input string '{s}'.")

@@ -6,15 +6,29 @@ from pathlib import Path
 import logging
 from typing import List
 import polars as pl
-import datetime as dt
+from datetime import datetime
 
-from .utils import get_months, nanoseconds
+from ..utils import nanoseconds
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-
 DATA_PATH = Path(__file__).parent.parent.parent.parent / "data"
+
+def get_months(start_date: datetime, end_date: datetime) -> List[str]:
+    """
+    Given two datetime objects, generate a list of months between them as strings in 'MM' format.
+    """
+    months = []
+    current_date = start_date.replace(day=1)
+    
+    while current_date <= end_date:
+        months.append(current_date.strftime('%y%m'))
+        if current_date.month == 12:
+            current_date = current_date.replace(year=current_date.year + 1, month=1)
+        else:
+            current_date = current_date.replace(month=current_date.month + 1)
+    return sorted(months)
 
 class DataLoader:
     def __init__(self, root: str | Path = DATA_PATH, cache: bool = True):
