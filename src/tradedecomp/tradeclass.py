@@ -18,25 +18,21 @@ def label_trades(df: pl.DataFrame, products: list, ts_col: str, delta: str | tim
     Returns:
         pl.DataFrame: The dataframe with the labeled trades
     """
-    df = df.with_columns([(pl.col("product") == prod).cast(pl.Int64).alias(f"{prod}_flag") for prod in products])  
     if isinstance(delta, str):
         delta = str_to_timedelta(delta)
-    rolled_df = df.rolling(
-        index_column=ts_col,
-        period=2*delta,
-        offset=-delta,
-        closed="both",
-        #group_by=pl.col("trade_id")
-    ).agg(
-        [pl.col(f"{prod}_flag").sum().alias(f"{prod}_count") for prod in products]
-    ).with_columns(
-        df['trade_id']
+    df = df.with_columns([(pl.col("product") == prod).cast(pl.Int64).alias(f"{prod}_flag") for prod in products])  
+    
+    df = df.with_columns(
+        [pl.sum(f"{prod}_flag").rolling(
+            index_column=ts_col,
+            period=2*delta,
+            offset=-delta,
+            closed="both"
+            ).alias(f"{prod}_count") for prod in products]
     )
 
-    df = df.join(rolled_df, on=["trade_id", ts_col], how="left")
-
-    count_columns = [pl.col(f"{prod}_count") for prod in products]
     flag_columns = [pl.col(f"{prod}_flag")  for prod in products]
+    count_columns = [pl.col(f"{prod}_count") for prod in products]
     adjusted_counts = [(count - flag).alias(f"{prod}_count") for count, flag, prod in zip(count_columns, flag_columns, products)]
     product_exprs = [count * flag for count, flag in zip(count_columns, flag_columns)]
 

@@ -18,7 +18,7 @@ def plot_trades(df: pl.DataFrame, products: list[str], ts_col: str, start_time: 
         logger.warning(f"Column {ts_col} is not a datetime")
         return
     if isinstance(start_time, str):
-        start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+        start_time = datetime.strptime(start_time, "%y%m%d.%H%M%S")
     df = df.filter(pl.col(ts_col) >= start_time)
     df = df[:nr_of_trades]
     if isinstance(delta, str):
