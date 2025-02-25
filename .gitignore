@@ -22,7 +22,7 @@ env/
 .python-version
 
 # Data
-data/trnk/
+data/tardis/
 data/bybit/
 data/binance/
 data/kraken/
@@ -32,3 +32,6 @@ data/probit/
 data/upbit/
 data/zb/
 data/tardis/
+
+# Old scripts
+examples/tradedecomp.ipynb

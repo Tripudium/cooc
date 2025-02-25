@@ -1,7 +1,7 @@
 import polars as pl
 from typing import List
 from datetime import timedelta
-from tradedecomp.tradeclass import label_trades
+from tradedecomp.cooc import label_trades
 
 # Register a custom namespace for our additional DataFrame functionality.
 @pl.api.register_dataframe_namespace("_dt")
