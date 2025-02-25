@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import seaborn as sns
 from datetime import timedelta, datetime    
-from .utils import str_to_timedelta
+from cooc.utils import str_to_timedelta
 import logging
 
 logger = logging.getLogger(__name__)
