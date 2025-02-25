@@ -8,7 +8,7 @@ from typing import List
 import polars as pl
 from datetime import datetime
 
-from ..utils import nanoseconds
+from cooc.utils import nanoseconds
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

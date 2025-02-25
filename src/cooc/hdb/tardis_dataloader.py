@@ -2,8 +2,8 @@ from pathlib import Path
 import logging
 
 # Local imports    
-from .base import DataLoader
-from .registry import register_dataset
+from cooc.hdb.base import DataLoader
+from cooc.hdb.registry import register_dataset
 
 logger = logging.getLogger(__name__)
 TARDIS_DATA_PATH = Path(__file__).parent.parent.parent.parent / "data" / "tardis"       
