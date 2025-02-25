@@ -6,7 +6,7 @@ import polars as pl
 from datetime import timedelta
 from cooc.utils import str_to_timedelta
 
-def label_trades(df: pl.DataFrame, products: list, ts_col: str, delta: str | timedelta, mapping: dict = {0: "iso", 1: "nis-c", 2: "nis-s", 3: "nis-b"}):
+def classify_trades(df: pl.DataFrame, products: list, ts_col: str, delta: str | timedelta, mapping: dict = {0: "iso", 1: "nis-c", 2: "nis-s", 3: "nis-b"}):
     """
     Label trades based on co-trading relationships
 

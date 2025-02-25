@@ -1,7 +1,7 @@
 [project]
 name = "cooc"
 version = "0.1.0"
-description = "Add your description here"
+description = "Trade Co-occurrence and Conditional Order Imbalance"
 readme = "README.md"
 authors = [
     { name = "Martin", email = "martin@tripudium.tech" }
@@ -16,6 +16,7 @@ dependencies = [
     "polars>=1.22.0",
     "pyarrow>=19.0.1",
     "pybit>=5.9.0",
+    "pytest>=8.3.4",
     "pytz>=2025.1",
     "seaborn>=0.13.2",
     "tqdm>=4.67.1",
@@ -27,3 +28,13 @@ tradedecomp = "tradedecomp:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = ["pytest"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--maxfail=1 --disable-warnings -q"
+testpaths = [
+    "tests",
+]

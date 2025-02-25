@@ -1,7 +1,7 @@
 import polars as pl
 from typing import List
 from datetime import timedelta
-from cooc.classify import label_trades
+from cooc.classify import classify_trades
 
 # Register a custom namespace for our additional DataFrame functionality.
 @pl.api.register_dataframe_namespace("_dt")
@@ -94,4 +94,4 @@ class TradeMethods:
         Classify trades based on co-trading relationships.
         """
         mapping: dict = {0: "iso", 1: "nis-c", 2: "nis-s", 3: "nis-b"}
-        return label_trades(self._df, products, ts_col, delta, mapping) 
+        return classify_trades(self._df, products, ts_col, delta, mapping) 
