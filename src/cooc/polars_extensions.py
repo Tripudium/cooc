@@ -86,8 +86,17 @@ class TradeMethods:
         """
         Add a side column to the DataFrame.
         """
-        return self._df.with_columns(
+        df = self._df.with_columns(
             pl.when(pl.col(col) > 0).then(1).otherwise(-1).alias('side'))
+        return df
+    
+    def add_size(self, col: str='qty') -> pl.DataFrame:
+        """
+        Add a size column to the DataFrame.
+        """
+        df = self._df.with_columns(
+            pl.col(col).abs().alias('size'))
+        return df
     
     def classify_trades(self, products: List[str], ts_col: str, delta: str | timedelta) -> pl.DataFrame:
         """

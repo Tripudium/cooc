@@ -53,3 +53,28 @@ def str_to_timedelta(s: str) -> timedelta:
         return timedelta(hours=number)
     else:
         raise ValueError(f"Unrecognized unit '{unit}' in input string '{s}'.")
+    
+def timedelta_to_str(td: timedelta) -> str:
+    """
+    Convert a timedelta to a string.
+    """
+    total_seconds = td.total_seconds()
+    
+    # Check hours first
+    if total_seconds >= 3600 and total_seconds % 3600 == 0:
+        return f"{int(total_seconds // 3600)}h"
+    # Then minutes
+    elif total_seconds >= 60 and total_seconds % 60 == 0:
+        return f"{int(total_seconds // 60)}m"
+    # Then seconds
+    elif total_seconds.is_integer():
+        return f"{int(total_seconds)}s"
+    # Then milliseconds
+    elif total_seconds * 1000 % 1 == 0:
+        return f"{int(total_seconds * 1000)}ms"
+    # Then microseconds
+    elif total_seconds * 1_000_000 % 1 == 0:
+        return f"{int(total_seconds * 1_000_000)}us"
+    # Finally nanoseconds
+    else:
+        return f"{int(total_seconds * 1_000_000_000)}ns"
