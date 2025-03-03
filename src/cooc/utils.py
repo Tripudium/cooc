@@ -1,8 +1,15 @@
+"""
+Utility functions for time and date handling in the DSPy framework.
+
+This module provides helper functions for converting between different time formats,
+handling timedeltas, and working with timestamps at various precisions.
+"""
+
 from typing import Union
 import calendar
+import re
 from datetime import datetime, timedelta
 import pytz
-import re
 
 def nanoseconds(input: Union[str, datetime]) -> int:
     """
@@ -28,6 +35,17 @@ def nanoseconds(input: Union[str, datetime]) -> int:
     time_tuple = input.utctimetuple()
     timestamp = 1000 * (calendar.timegm(time_tuple) * 1000 * 1000 + input.microsecond)
     return timestamp
+
+def round_up_to_nearest(dt: datetime, td: timedelta) -> datetime:
+    """
+    Round a datetime up to the nearest timedelta.
+    """
+    dt_seconds = dt.timestamp() 
+    td_seconds = td.total_seconds()
+    remainder = dt_seconds % td_seconds
+    if remainder > 0:
+        return dt + timedelta(seconds=(td_seconds - remainder))
+    return dt 
 
 def str_to_timedelta(s: str) -> timedelta:
     """

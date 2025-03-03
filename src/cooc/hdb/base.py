@@ -4,10 +4,10 @@ Base class for loading data
 
 from pathlib import Path
 import logging
-from typing import List
-import polars as pl
 from datetime import datetime
+import polars as pl
 
+# Local imports
 from cooc.utils import nanoseconds
 
 logger = logging.getLogger(__name__)
@@ -15,7 +15,7 @@ logger.setLevel(logging.INFO)
 
 DATA_PATH = Path(__file__).parent.parent.parent.parent / "data"
 
-def get_months(start_date: datetime, end_date: datetime) -> List[str]:
+def get_months(start_date: datetime, end_date: datetime) -> list[str]:
     """
     Given two datetime objects, generate a list of months between them as strings in 'MM' format.
     """
@@ -31,14 +31,20 @@ def get_months(start_date: datetime, end_date: datetime) -> List[str]:
     return sorted(months)
 
 class DataLoader:
+    """
+    Base class for loading and processing financial data.
+    
+    This class provides common functionality for downloading, processing,
+    and accessing financial data from various sources.
+    """
     def __init__(self, root: str | Path = DATA_PATH, cache: bool = True):
         """
         Initialize the DataLoader with a path to the data.
         """
         logger.info("Initializing DataLoader with path %s"%root)
         self.root = root
-        self.raw_path = root / "raw"
-        self.processed_path = root / "processed"
+        self._raw_path = Path(root) / "raw"
+        self._processed_path = Path(root) / "processed"
         # maintain a cache of dataframes
         if cache:
             self.cache = {}
@@ -47,21 +53,45 @@ class DataLoader:
 
     @property
     def raw_path(self):
-        return self._raw_path
+        """
+        Get the path to raw data files.
+        
+        Returns:
+            Path: The directory containing raw data files.
+        """
+        return str(self._raw_path)
     
     @property
     def processed_path(self):
-        return self._processed_path
+        """
+        Get the path to processed data files.
+        
+        Returns:
+            Path: The directory containing processed data files.
+        """
+        return str(self._processed_path)
 
     @raw_path.setter
     def raw_path(self, path: str | Path):
-            self._raw_path = path
+        """
+        Set the path to raw data files.
+        
+        Args:
+            path (str | Path): The directory to store raw data files.
+        """
+        self._raw_path = path
 
     @processed_path.setter
     def processed_path(self, path: str | Path):
+        """
+        Set the path to processed data files.
+        
+        Args:
+            path (str | Path): The directory to store processed data files.
+        """
         self._processed_path = path
 
-    def _load_data(self, product: str, times: List[str], type: str, lazy=False) -> pl.DataFrame:    
+    def _load_data(self, product: str, times: list[str], type: str, lazy=False) -> pl.DataFrame:    
         """
         Load data for a given product and times.
         """
@@ -101,7 +131,7 @@ class DataLoader:
         df = df.filter(pl.col('ts').is_between(nanoseconds(times[0]), nanoseconds(times[1])))
         return df
     
-    def load_trades(self, products: List[str] | str, times: List[str], lazy=False) -> pl.DataFrame:
+    def load_trades(self, products: list[str] | str, times: list[str], lazy=False) -> pl.DataFrame:
         """
         Load trades data for a given product and times.
         """
@@ -115,7 +145,7 @@ class DataLoader:
         df = pl.concat(dfs).sort('ts')
         return df
 
-    def load_book(self, products: List[str], times: List[str], lazy=False) -> pl.DataFrame:
+    def load_book(self, products: list[str] | str, times: list[str], _depth: int = 10, lazy=False) -> pl.DataFrame:
         """
         Load book data for a given product and times.
         """
@@ -138,6 +168,12 @@ class DataLoader:
         for i, df in enumerate(dfs):
             merged_df = merged_df.join_asof(df, on='ts')
         return merged_df.drop_nulls().sort('ts')
+    
+    def load(self, _products: list[str], _times: list[str], _col: str="mid",_freq: str="1s", _lazy=False) -> pl.DataFrame:
+        """
+        Load data for a given product and times.
+        """
+        raise NotImplementedError("Subclasses must implement this method")
         
     def download(self, product: str, month: str, type: str):
         pass
