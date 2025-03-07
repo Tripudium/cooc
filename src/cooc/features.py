@@ -1,7 +1,10 @@
+"""
+Functions for calculating features from trade data.
+"""
+
 from datetime import timedelta
 from cooc.utils import str_to_timedelta, timedelta_to_str
 import polars as pl
-from typing import List
 
 # Freatures for trades
 
@@ -31,7 +34,6 @@ def coi(df: pl.DataFrame, ts_col: str, delta: str | timedelta, type: str) -> pl.
 
     assert ts_col in df.columns
     assert "qty" in df.columns
-
     assert type in ["nis", "nis-c", "nis-b", "nis-s"]
     
     has_side, has_size = True, True
