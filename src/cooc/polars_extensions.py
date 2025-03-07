@@ -2,6 +2,9 @@
 This module provides additional functionality for Polars DataFrames.
 """
 import polars as pl
+from datetime import timedelta
+from cooc.utils import str_to_timedelta
+from cooc.classify import classify_trades
 
 
 def _get_products(df: pl.DataFrame, cols: list[str]) -> list[str]:
@@ -144,3 +147,11 @@ class TradeMethods:
         df = self._df.with_columns(
             pl.col(col).abs().alias('size'))
         return df
+    
+    def classify_trades(self, products: list[str], ts_col: str='ts', delta: str | timedelta='100ms') -> pl.DataFrame:
+        """
+        Classify trades by product and timestamp.
+        """
+        if isinstance(delta, str):
+            delta = str_to_timedelta(delta)
+        return classify_trades(self._df, products, ts_col, delta)
