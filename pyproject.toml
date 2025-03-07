@@ -9,6 +9,8 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "bybit-bulk-downloader>=1.2.0",
+    "cython>=3.0.12",
+    "hawkes>=1.0.0",
     "ipykernel>=6.29.5",
     "matplotlib>=3.10.0",
     "pandas>=2.2.3",
