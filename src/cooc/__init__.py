@@ -1,3 +1,3 @@
-from . import polars_extensions
+#from . import polars_ext
 
-__all__ = ["polars_extensions"]
+#__all__ = ['polars_ext']

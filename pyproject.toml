@@ -6,16 +6,18 @@ readme = "README.md"
 authors = [
     { name = "Martin", email = "martin@tripudium.tech" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "bybit-bulk-downloader>=1.2.0",
     "cython>=3.0.12",
+    "dspy",
     "hawkes>=1.0.0",
     "ipykernel>=6.29.5",
     "matplotlib>=3.10.0",
     "pandas>=2.2.3",
     "pathlib>=1.0.1",
     "polars>=1.22.0",
+    "polugins>=0.5.1",
     "pyarrow>=19.0.1",
     "pybit>=5.9.0",
     "pytest>=8.3.4",
@@ -25,7 +27,7 @@ dependencies = [
 ]
 
 [project.scripts]
-tradedecomp = "tradedecomp:main"
+cooc = "cooc:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -33,6 +35,9 @@ build-backend = "hatchling.build"
 
 [tool.uv]
 dev-dependencies = ["pytest"]
+
+[tool.uv.sources]
+dspy = { path = "../dspy/dist/dspy-0.1.0-py3-none-any.whl" }
 
 [tool.pytest.ini_options]
 minversion = "6.0"

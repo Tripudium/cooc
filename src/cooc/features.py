@@ -8,20 +8,20 @@ import polars as pl
 
 # Freatures for trades
 
-def add_size(df: pl.DataFrame, col: str='qty') -> pl.DataFrame:
-    """
-    Add a size column to the DataFrame.
-    """
-    df = df.with_columns(
-        pl.col(col).abs().alias('size'))
-    return df
-
 def add_side(df: pl.DataFrame, col: str='qty') -> pl.DataFrame:
     """
     Add a side column to the DataFrame.
     """
     df = df.with_columns(
         pl.when(pl.col(col) > 0).then(1).otherwise(-1).alias('side'))
+    return df
+
+def add_size(df: pl.DataFrame, col: str='qty') -> pl.DataFrame:
+    """
+    Add a size column to the DataFrame.
+    """
+    df = df.with_columns(
+        pl.col(col).abs().alias('size'))
     return df
 
 def coi(df: pl.DataFrame, ts_col: str, delta: str | timedelta, type: str) -> pl.DataFrame:
@@ -83,30 +83,3 @@ def coi(df: pl.DataFrame, ts_col: str, delta: str | timedelta, type: str) -> pl.
         df = df.drop(["size"])
 
     return df
-
-# Features for prices
-
-def add_spread(df: pl.DataFrame, col: str='spread') -> pl.DataFrame:
-    """
-    Add a spread column to the DataFrame.
-    """
-    df = df.with_columns(
-        pl.col(col).abs().alias('spread'))
-    return df
-
-def add_volume(df: pl.DataFrame, col: str='volume') -> pl.DataFrame:
-    """
-    Add a volume column to the DataFrame.
-    """
-    df = df.with_columns(
-        pl.col(col).abs().alias('volume'))
-    return df
-
-def add_vwap(df: pl.DataFrame, col: str='vwap') -> pl.DataFrame:
-    """
-    Add a VWAP column to the DataFrame.
-    """
-    df = df.with_columns(
-        pl.col(col).alias('vwap'))
-    return df
-
